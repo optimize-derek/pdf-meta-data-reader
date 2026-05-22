@@ -36,6 +36,25 @@ export default function FieldsTable({ result, onApply, applying }: Props) {
     (f, i) => editedNames[i].trim() !== f.name,
   ).length;
 
+  const handleExportCsv = () => {
+    const escape = (v: string) => `"${v.replace(/"/g, '""')}"`;
+    const rows = [
+      ['original_name', 'new_name', 'type', 'page', 'nearby_text'].map(escape).join(','),
+      ...fields.map((f, i) =>
+        [f.name, editedNames[i].trim(), f.type, String(f.page), f.nearbyText.join(' · ')].map(escape).join(',')
+      ),
+    ];
+    const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'pdf_fields.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   if (fields.length === 0) {
     return (
       <div className="fields-section">
@@ -51,17 +70,22 @@ export default function FieldsTable({ result, onApply, applying }: Props) {
           Found <strong>{fields.length}</strong> field{fields.length !== 1 ? 's' : ''} across{' '}
           <strong>{pageCount}</strong> page{pageCount !== 1 ? 's' : ''}
         </span>
-        <button
-          className="apply-btn"
-          onClick={handleApply}
-          disabled={applying || changedCount === 0}
-        >
-          {applying
-            ? 'Saving…'
-            : changedCount > 0
-            ? `Apply & Download (${changedCount} rename${changedCount !== 1 ? 's' : ''})`
-            : 'No changes'}
-        </button>
+        <div className="summary-actions">
+          <button className="csv-btn" onClick={handleExportCsv}>
+            Export CSV
+          </button>
+          <button
+            className="apply-btn"
+            onClick={handleApply}
+            disabled={applying || changedCount === 0}
+          >
+            {applying
+              ? 'Saving…'
+              : changedCount > 0
+              ? `Apply & Download PDF (${changedCount} rename${changedCount !== 1 ? 's' : ''})`
+              : 'No changes'}
+          </button>
+        </div>
       </div>
 
       <div className="table-wrapper">
