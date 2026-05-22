@@ -150,6 +150,7 @@ export async function extractFields(buffer: Buffer): Promise<ExtractResponse> {
   const rawFields: Omit<ExtractedField, 'suggestedName'>[] = [];
 
   for (const field of form.getFields()) {
+    if (field instanceof PDFSignature) continue;
     const name = field.getName();
     const type = getFieldTypeName(field);
 
