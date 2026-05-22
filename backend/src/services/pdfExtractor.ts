@@ -17,6 +17,7 @@ const pdfjsLib = require('pdfjs-dist/legacy/build/pdf.js') as typeof import('pdf
 pdfjsLib.GlobalWorkerOptions.workerSrc = ''; // fake-worker in Node.js
 
 import { ExtractedField, ExtractResponse, FieldRect } from '../types.js';
+import { lookupFieldName } from './fieldDictionary.js';
 
 interface RawTextItem {
   str: string;
@@ -109,15 +110,19 @@ function toSnakeCase(text: string): string {
 const NOISE_RE = /^(yes|no|if yes|if no|n\/a|\d+|dd|mm|yyyy)$/i;
 
 function suggestName(nearbyText: string[], fieldName: string): string {
-  // Find the first nearby text that (a) is long enough, (b) isn't pure noise,
-  // and (c) produces a meaningful snake_case string (not just underscores/dashes)
+  // Dictionary lookup takes priority
+  for (const t of nearbyText) {
+    const match = lookupFieldName(t);
+    if (match) return match;
+  }
+  // Fall back to snake_case generation from nearby text
   for (const t of nearbyText) {
     if (t.trim().length < 4) continue;
     if (NOISE_RE.test(t.trim())) continue;
     const clean = toSnakeCase(t);
     if (clean.length > 0) return clean;
   }
-  // Fall back to the existing field name
+  // Last resort: use the existing field name
   const fromName = toSnakeCase(fieldName ?? '');
   return fromName.length > 0 ? fromName : 'field';
 }
