@@ -1,0 +1,51 @@
+.upload-zone {
+  border: 2px dashed #d1d5db;
+  border-radius: 12px;
+  padding: 52px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  background: #ffffff;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  user-select: none;
+}
+
+.upload-zone:hover:not(.disabled),
+.upload-zone.dragging {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.upload-zone.disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.upload-icon {
+  width: 48px;
+  height: 48px;
+  color: #9ca3af;
+}
+
+.upload-zone:hover:not(.disabled) .upload-icon,
+.upload-zone.dragging .upload-icon {
+  color: #2563eb;
+}
+
+.upload-label {
+  font-size: 15px;
+  color: #374151;
+}
+
+.upload-label span {
+  color: #2563eb;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.upload-hint {
+  font-size: 13px;
+  color: #9ca3af;
+}
